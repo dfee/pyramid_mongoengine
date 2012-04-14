@@ -1,0 +1,5 @@
+{% extends 'base.jinja2' %}
+{% block content %}
+    <h2>Sign up <a href="{{request.route_url('signup')}}">here</a>!</h2>
+    {{ form|safe }}
+{% endblock content %}

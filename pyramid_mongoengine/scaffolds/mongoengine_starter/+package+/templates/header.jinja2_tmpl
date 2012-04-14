@@ -1,0 +1,36 @@
+<div class="topbar" data-scrollspy="scrollspy">
+      <div class="topbar-inner">
+        <div class="container">
+          <h3><a href="\{\{request.route_url('home')\}\}">{{project}}</a></h3>
+          <ul class="nav">
+            {% block nav %}
+                <li {% if request.path_info.startswith('/about') %}class="active"{% endif %}>
+                    <a href="#about">About</a></li>
+                {% if request.user %}
+                    {% if request.user.acl.admin %}
+                        <li {% if request.path_info.startswith('/admin') %}class="active"{% endif %}>
+                            <a href="\{\{request.route_url('admin')\}\}">Admin</a></li>
+                    {% endif %}
+                    {% if request.user.acl.manager %}
+                        <li {% if request.path_info.startswith('/manage') %}class="active"{% endif %}>
+                            <a href="#manage">Manage</a></li>
+                    {% endif %}
+                {% endif %}
+            {% endblock nav %}
+          </ul>
+
+          <ul class="nav secondary-nav">
+              {% if request.user %}
+              <li class="dropdown" data-dropdown="dropdown">
+                <a href="#" class="dropdown-toggle">\{\{request.user.common_name\}\}</a>
+                <ul class="dropdown-menu">
+                  <li><a href="\{\{request.route_url('signout', _query=[('referrer', request.path_info)])\}\}">Sign out</a></li>
+                </ul>
+              </li>
+              {% else %}
+              <li><a href="\{\{request.route_url('signin')\}\}">Sign in</a></li>
+              {% endif %}
+          </ul>
+        </div>
+      </div>
+    </div>

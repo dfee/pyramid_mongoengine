@@ -1,0 +1,37 @@
+from pyramid.authentication import SessionAuthenticationPolicy
+from pyramid.authorization import ACLAuthorizationPolicy
+from pyramid.config import Configurator
+
+from pyramid_beaker import session_factory_from_settings
+
+from {{package}}.security import groupfinder, RequestWithUserAttribute
+
+def main(global_config, **settings):
+    """ This function returns a Pyramid WSGI application.
+    """
+    session_factory = session_factory_from_settings(settings)
+    authn_policy = SessionAuthenticationPolicy(callback=groupfinder)
+    authz_policy = ACLAuthorizationPolicy()
+
+    config = Configurator(settings=settings,
+                          root_factory='{{package}}.security.RootFactory',
+                          authentication_policy=authn_policy,
+                          authorization_policy=authz_policy,
+                          request_factory='{{package}}.security.RequestWithUserAttribute',
+                          session_factory=session_factory)
+
+    config.include('pyramid_exclog')
+    config.include('pyramid_jinja2')
+    config.add_static_view('static', '{{package}}:static', cache_max_age=3600)
+    config.add_static_view('deform', 'deform:static')
+    config.add_route('home', '/')
+    # admin views
+    config.add_route('admin', '/admin')
+    config.add_route('admin_userlist', '/admin/users')
+    config.add_route('admin_user', '/admin/users/:username')
+    # auth views
+    config.add_route('signup', '/auth/signup')
+    config.add_route('signin', '/auth/signin')
+    config.add_route('signout', '/auth/signout')
+    config.scan()
+    return config.make_wsgi_app()

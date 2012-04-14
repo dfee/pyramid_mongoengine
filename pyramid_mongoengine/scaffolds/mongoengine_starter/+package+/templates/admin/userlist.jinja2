@@ -1,0 +1,23 @@
+{% extends 'base.jinja2' %}
+{% block content %}
+    <table border="1">
+        <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Common Name</th>
+            <th>Created At</th>
+            <th>Admin</th>
+            <th>Manager</th>
+        </tr>
+        {% for user in users %}
+        <tr>
+            <td><a href="{{request.route_url('admin_user', username=user.username)}}">{{user.username}}</a></td>
+            <td>{{user.email}}</td>
+            <td>{{user.common_name}}</td>
+            <td>{{user.created_at.strftime('%m/%d/%Y %H:%M:%S')}}</td>
+            <td>{% if user.acl.admin %}Yes{% else %}No{% endif %}</td>
+            <td>{% if user.acl.manager %}Yes{% else %}No{% endif %}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock content %}

@@ -1,0 +1,42 @@
+import bcrypt
+import deform
+from pyramid.httpexceptions import HTTPFound
+from pyramid.view import view_config
+
+from {{package}}.documents import User, ACL
+from {{package}}.schemas import ACLSchema
+
+def merge_instance_with_appstruct(instance, appstruct):
+    for key,value in appstruct.items():
+        setattr(instance, key, value)
+    return instance
+
+@view_config(route_name='admin', renderer='admin/admin.jinja2', permission='administrate')
+def admin(request):
+    return {}
+
+@view_config(route_name='admin_userlist', renderer='admin/userlist.jinja2', permission='administrate')
+def userlist(request):
+    return {'users': User.objects.limit(100)}
+
+@view_config(route_name='admin_user', renderer='admin/user.jinja2', permission='administrate')
+def user_acl(request):
+    username = request.matchdict.get('username')
+    user = User.objects.get(username=username)
+    acl_schema = ACLSchema()
+    acl_form = deform.Form(acl_schema, buttons=('submit',))
+    if request.POST:
+        try:
+            appstruct = acl_form.validate(request.POST.items())
+        except deform.ValidationFailure, e:
+            return {'form':e.render()}
+        acl = ACL()
+        acl = merge_instance_with_appstruct(acl, appstruct)
+        user.acl = acl
+        user.save()
+
+        request.session.flash('Authorization Modified.')
+    acl = user.acl or ACL()
+    appstruct = acl.__dict__['_data']
+    return {'user': user,
+            'form': acl_form.render(appstruct=appstruct)} 

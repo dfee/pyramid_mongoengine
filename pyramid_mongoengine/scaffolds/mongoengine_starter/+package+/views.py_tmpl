@@ -1,0 +1,66 @@
+import bcrypt
+import deform
+from pyramid.httpexceptions import HTTPFound
+from pyramid.security import remember, authenticated_userid, forget
+from pyramid.view import view_config
+
+from {{package}}.documents import User
+from {{package}}.schemas import UserSchema, SigninSchema
+
+def record_to_appstruct(self):
+    return dict([(k, self.__dict__[k]) for k in sorted(self.__dict__) if '_sa_' != k[:4]])
+
+def merge_instance_with_appstruct(instance, appstruct):
+    for key,value in appstruct.items():
+        setattr(instance, key, value)
+    return instance
+
+@view_config(route_name='home', renderer='base.jinja2')
+def my_view(request):
+    return {}
+
+@view_config(route_name='user_create', renderer='user_create.jinja2')
+def user_create(request):
+    return {}
+
+@view_config(route_name='signin', renderer='signin.jinja2')
+def signin(request):
+    signin_schema = SigninSchema()
+    signin_form = deform.Form(signin_schema, buttons=('submit',))
+    if request.POST:
+        try:
+            appstruct = signin_form.validate(request.POST.items())
+        except deform.ValidationFailure, e:
+            return {'form':e.render()}
+        user = User.objects.get(username=request.POST.get('username'))
+        if bcrypt.hashpw(request.POST.get('password'), user.password) == user.password:
+            remember(request, user.id)
+            url = request.route_url('home')
+            return HTTPFound(location=url)
+        request.session.flash('Wrong password bozo')
+    return {'form': signin_form.render()}
+
+@view_config(route_name='signout', renderer='signout.jinja2')
+def signout(request):
+    forget(request)
+    url = request.route_url('home')
+    return HTTPFound(location=url)
+
+@view_config(route_name='signup', renderer='signup.jinja2')
+def user_create(request):
+    user_schema = UserSchema()
+    user_form = deform.Form(user_schema, buttons=('submit',))
+    if request.POST:
+        user = User()
+        try:
+            appstruct = user_form.validate(request.POST.items())
+        except deform.ValidationFailure, e:
+            return {'form':e.render()}
+        user = merge_instance_with_appstruct(user, appstruct)
+        user.save()
+
+        request.session.flash('User added.')
+        remember(request, user.id)
+        url = request.route_url('home')
+        return HTTPFound(location=url)
+    return {'form':user_form.render()}

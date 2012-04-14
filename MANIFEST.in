@@ -1,0 +1,2 @@
+include *.txt *.ini
+recursive-include pyramid_mongoengine *.*_tmpl *.jinja2 *.ico *.png *.py *.cfg *.ini *.js *.css

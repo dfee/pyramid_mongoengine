@@ -1,0 +1,27 @@
+from datetime import datetime
+
+from mongoengine import *
+
+connect('{{package}}')
+
+class ACL(EmbeddedDocument):
+    admin = BooleanField(default=False)
+    manager = BooleanField(default=False)
+
+class User(Document):
+    email = StringField(required=True, unique=True)
+    username = StringField(required=True, unique=True)
+    password = StringField(required=True)
+    first_name = StringField()
+    last_name = StringField()
+    created_at = DateTimeField(required=True, default=datetime.now)
+    acl = EmbeddedDocumentField(ACL)
+
+    def _get_common_name(self):
+        return "%s %s" % (self.first_name, self.last_name)
+
+    common_name = property(_get_common_name)
+
+class Character(EmbeddedDocument):
+    code = IntField(required=True)
+    link = StringField()
