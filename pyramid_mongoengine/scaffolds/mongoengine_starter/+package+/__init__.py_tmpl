@@ -4,20 +4,19 @@ from pyramid.config import Configurator
 
 from pyramid_beaker import session_factory_from_settings
 
-from {{package}}.security import groupfinder, RequestWithUserAttribute
+from {{package}}.documents import User
 
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
     session_factory = session_factory_from_settings(settings)
-    authn_policy = SessionAuthenticationPolicy(callback=groupfinder)
+    authn_policy = SessionAuthenticationPolicy(callback=User.groupfinder)
     authz_policy = ACLAuthorizationPolicy()
 
     config = Configurator(settings=settings,
                           root_factory='{{package}}.security.RootFactory',
                           authentication_policy=authn_policy,
                           authorization_policy=authz_policy,
-                          request_factory='{{package}}.security.RequestWithUserAttribute',
                           session_factory=session_factory)
 
     config.include('pyramid_exclog')

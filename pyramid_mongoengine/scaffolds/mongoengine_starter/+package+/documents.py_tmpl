@@ -2,7 +2,7 @@ from datetime import datetime
 
 from mongoengine import *
 
-connect('{{package}}')
+#connect('{{package}}')
 
 class ACL(EmbeddedDocument):
     admin = BooleanField(default=False)
@@ -17,10 +17,21 @@ class User(Document):
     created_at = DateTimeField(required=True, default=datetime.now)
     acl = EmbeddedDocumentField(ACL)
 
-    def _get_common_name(self):
+    @property
+    def common_name(self):
         return "%s %s" % (self.first_name, self.last_name)
 
-    common_name = property(_get_common_name)
+    @staticmethod
+    def groupfinder(userid, request):
+        principals = []
+        user = self.objects.get(id=userid)
+        acl = getattr(user, 'acl', None)
+        if acl:
+            if acl.admin:
+                principals.append('admin')
+            if acl.staff:
+                principals.append('staff')
+        return principals
 
 class Character(EmbeddedDocument):
     code = IntField(required=True)

@@ -1,8 +1,4 @@
-from pyramid.decorator import reify
-from pyramid.request import Request
 from pyramid.security import unauthenticated_userid, Allow, Authenticated, ALL_PERMISSIONS, DENY_ALL, Everyone
-
-from {{package}}.documents import User
 
 class RootFactory(object):
     __acl__ = [ (Allow, Everyone, 'view'),
@@ -11,23 +7,4 @@ class RootFactory(object):
 
     def __init__(self, request):
         pass
-
-def groupfinder(userid, request):
-    principals = []
-    user = User.objects.get(id=userid)
-    acl = getattr(user, 'acl', None)
-    if acl:
-        if acl.admin:
-            principals.append('admin')
-        if acl.staff:
-            principals.append('staff')
-    return principals
-
-class RequestWithUserAttribute(Request):
-    @reify
-    def user(self):
-        # For requests with session
-        userid = unauthenticated_userid(self)
-        if userid is not None:
-            return User.objects.get(id=userid)
 
