@@ -11,9 +11,9 @@
                         <li {% if request.path_info.startswith('/admin') %}class="active"{% endif %}>
                             <a href="\{\{request.route_url('admin')\}\}">Admin</a></li>
                     {% endif %}
-                    {% if request.user.acl.manager %}
-                        <li {% if request.path_info.startswith('/manage') %}class="active"{% endif %}>
-                            <a href="#manage">Manage</a></li>
+                    {% if request.user.acl.staff %}
+                        <li {% if request.path_info.startswith('/staff') %}class="active"{% endif %}>
+                            <a href="#staff">Staff</a></li>
                     {% endif %}
                 {% endif %}
             {% endblock nav %}

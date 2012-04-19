@@ -7,7 +7,7 @@ from {{package}}.documents import User
 class RootFactory(object):
     __acl__ = [ (Allow, Everyone, 'view'),
                 (Allow, 'admin', ALL_PERMISSIONS),
-                (Allow, 'manage', 'edit') ]
+                (Allow, 'staff', 'edit') ]
 
     def __init__(self, request):
         pass
@@ -19,8 +19,8 @@ def groupfinder(userid, request):
     if acl:
         if acl.admin:
             principals.append('admin')
-        if acl.manager:
-            principals.append('manage')
+        if acl.staff:
+            principals.append('staff')
     return principals
 
 class RequestWithUserAttribute(Request):

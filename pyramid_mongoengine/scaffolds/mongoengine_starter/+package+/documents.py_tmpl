@@ -6,7 +6,7 @@ connect('{{package}}')
 
 class ACL(EmbeddedDocument):
     admin = BooleanField(default=False)
-    manager = BooleanField(default=False)
+    staff = BooleanField(default=False)
 
 class User(Document):
     email = StringField(required=True, unique=True)
