@@ -1,14 +1,14 @@
-[app:main]
+[app:{{package}}]
 use = egg:{{project}}
-
-pyramid.reload_templates = false
-pyramid.debug_authorization = false
-pyramid.debug_notfound = false
-pyramid.debug_routematch = false
-pyramid.debug_templates = false
-pyramid.default_locale_name = en
+reload_templates = false
+debug_authorization = false
+debug_notfound = false
+debug_routematch = false
+debug_templates = false
+default_locale_name = en
 jinja2.directories = {{project}}:templates
 
+# beaker
 session.type = file
 session.data_dir = %(here)s/data/sessions/data
 session.lock_dir = %(here)s/data/sessions/lock
@@ -16,12 +16,16 @@ session.key = {{project}}_session
 session.secret = {{random_string}}
 session.cookie_on_exception = true
 
-[mongodb]
-host = localhost
-port = 27017
-db = {{package}}_production
-#username =
-#password = 
+# mongodb
+mongoengine.host = localhost
+mongoengine.port = 27017
+mongoengine.db = {{package}}_production
+#mongoengine.username =
+#mongoengine.password = 
+
+[pipeline:main]
+pipeline =
+    {{package}}
 
 [server:main]
 use = egg:waitress#main

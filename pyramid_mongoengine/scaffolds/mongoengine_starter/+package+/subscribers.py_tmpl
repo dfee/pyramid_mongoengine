@@ -1,20 +1,23 @@
 from pyramid.events import subscriber, NewRequest
+from pyramid.security import unauthenticated_userid
 from mongoengine import connect
 
+from {{package}}.documents import User
+
 def _add_user_to_request(request):
-    userid = unauthenticated_userid(self)
+    userid = unauthenticated_userid(request)
     if userid is not None:
         return User.objects.get(id=userid)
 
 def _connect_mongo(request):
-    mongo = request.registry.settings['mongodb']
-    connect(db=mongo['db'],
-            port=mongo['port'],
-            host=mongo['host'])
+    settings = request.registry.settings
+    connect(db=settings['mongoengine.db'],
+            port=int(settings['mongoengine.port']),
+            host=settings['mongoengine.host'])
 
 @subscriber(NewRequest)
 def new_request(event):
     request = event.request
     # setup mongo connection
-    _connect(request)
+    _connect_mongo(request)
     request.set_property(_add_user_to_request, 'user', reify=True)
